@@ -1,13 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const {Category, Recipe} = require('../lib/models');
-
-// get all categories
-// get all recipes associated with a category
-// add a recipe
-// edit a recipe
-// delete a recipe
-
+const {Category, Recipe, Content} = require('../lib/models');
 
 // get a list of the food categories
 router.get('/categories', async function(req, res, next) {
@@ -27,16 +20,26 @@ router.get('/categories/:categoryId/recipes', async function(req, res, next) {
     res.json(recipes);
 });
 
-router.get('/categories/:categoryId/recipes/:recipeId', async function(req, res, next) {
-    let recipe = await Recipe.findAll({where: {category: req.params.categoryId, recipeId: req.params.recipeId}});
-    res.json(recipe);
-});
-
 // get all recipes for all categories 
 router.get('/categories/recipes', async function(req, res, next) {
     let recipes = await Recipe.findAll({});
     res.json(recipes);
 });
+
+// create new content associated with a recipe
+router.post('/recipes/:recipeId/contents', async function(req, res, next) {
+    let body = req.body;
+    body.recipeId = req.params.recipeId
+    let content = await Content.create(body);
+    res.json(content);
+});
+
+// get contents for a recipe 
+router.get('/recipes/:recipeId/contents', async function(req, res, next){
+    let contents = await Content.findAll({where: {recipeId: req.params.recipeId}});
+    res.json(contents);
+});
+
 
 router.delete('recipes/:recipeId', async function (req,res, next){
     let recipe = await Recipe.destroy({
